@@ -1,63 +1,54 @@
-# GST Verification API
+# GST Verification Pro (App & API)
 
-This API fetches GST Taxpayer Details with GSTIN and provide data in JSON format
+A modern, fast, and comprehensive GSTIN verification application and REST API that fetches official taxpayer details directly from the Government GST portal (`services.gst.gov.in`).
 
-## Use Hosted Product (Fastest Way)
+---
 
-If you want production-ready usage with support, dashboard and paid credits, use:
+## 🚀 Quick Start (One-Click)
 
-- Website: https://gstverify.dubey.app
-- API Base URL: https://api.gstverify.dubey.app
-- API Docs: https://gstverify.dubey.app/docs
-- Pricing: https://gstverify.dubey.app/#pricing
-- Support: https://gstverify.dubey.app/support
+If you are on Windows, simply **double-click** [`start.bat`](start.bat). It will automatically launch the server and open the web dashboard in your browser at:
 
-Using hosted product supports ongoing development of this open-source repository.
+👉 **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
 
-## Table of Contents
+---
 
-- [Features](#Features)
-- [Use Hosted Product (Fastest Way)](#Use-Hosted-Product-Fastest-Way)
-- [Installation](#Installation)
-- [Usage](#Usage)
-- [Endpoints](#EndPoints)
-- [Support](#Support)
-- [Contribution](#Contribution)
-- [License](#License)
+## ✨ Features
 
-## Features
+- **Interactive Web Dashboard**: Beautiful, clean UI accessible at `http://127.0.0.1:5000`.
+- **Live State & PAN Intelligence**: Automatically detects the Indian State/UT and extracts the PAN as you type the GSTIN.
+- **Dynamic Captcha Handling**: Live captcha rendering with a 1-click reload button and auto-refresh on failed attempts.
+- **Structured Taxpayer Details**:
+  - Legal Name, Trade Name, Constitution of Business
+  - Active / Cancelled status badges with cancellation dates
+  - Complete Principal Place of Business address
+  - Nature of Business Activity tags (Wholesale, Retail, Manufacturing, etc.)
+  - Centre and State tax jurisdictions, Aadhaar verification, and e-Invoice status.
+- **Productivity Tools**:
+  - **Copy Summary**: Formats details into a clean text summary ready for email or WhatsApp.
+  - **Print / PDF**: Clean, print-ready document view.
+  - **Search History**: Saves recent lookups in your browser for quick review.
+- **REST API Support**: Fully backward-compatible endpoints (`/api/v1/getCaptcha` and `/api/v1/getGSTDetails`) for automated scripts, Postman, and backend integrations.
 
-- It Maintains session information for handling dynamic captcha url.
-- Send GSTIN and captcha code to check GST details.
-- Return GSTIN details in a structured JSON format.
-- Easy to integrate in any of your application.
+---
 
-## Installation
+## 🛠 Manual Installation
 
-1. Clone the repository:
+1. Open your terminal in this repository:
+   ```powershell
+   cd D:\Applications_Github\GST-Verification-API\GST-Verification-API
+   ```
 
-   ```bash
-   git clone https://github.com/shubham-dube/GST-Verification-API.git
-   cd GST-Verification-API
-   
-2. Create a virtual environment and activate it:
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate # On Linux use `source venv/bin/activate`
-   
-3. Install the dependencies:
-   ```bash
-   pip install flask requests uuid base64
+2. Activate the virtual environment:
+   ```powershell
+   .\venv\Scripts\activate
+   ```
 
-4. Run the Application:
-   ```bash
+3. Run the application:
+   ```powershell
    python app.py
- *The API will be available at http://127.0.0.1:5000.*
- 
-## Usage
-- Show the Cpatcha to the user Coming by sending GET request to one the of the endpoint and one input for GSTIN.
-- Send the GSTIN entered and captcha along with the session id recieved.
-- You will get all the details related to that GSTIN in the JSON format.
+   ```
+
+4. Open **http://127.0.0.1:5000** in your browser.
   
 ## EndPoints
 
