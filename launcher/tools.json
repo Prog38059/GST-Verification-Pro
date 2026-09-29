@@ -1,0 +1,32 @@
+[
+  {
+    "id": "gst-verifier",
+    "name": "GSTIN Verifier Pro",
+    "description": "Verify official taxpayer identity, filing status, address, & business activities.",
+    "category": "Tax & Compliance",
+    "badge": "Active",
+    "icon": "🏛️",
+    "url": "http://127.0.0.1:5000",
+    "keywords": ["gst", "gstin", "tax", "taxpayer", "verify", "company"]
+  },
+  {
+    "id": "invoice-gen",
+    "name": "GST Invoice & E-Way Bill",
+    "description": "Generate GST-compliant B2B & B2C invoices and calculate tax breakdowns.",
+    "category": "Billing",
+    "badge": "Coming Soon",
+    "icon": "📄",
+    "url": "https://gstverify.dubey.app",
+    "keywords": ["invoice", "bill", "eway", "b2b", "b2c", "tax"]
+  },
+  {
+    "id": "hsn-finder",
+    "name": "HSN Code & GST Rate Finder",
+    "description": "Instant lookup for 4/6/8 digit HSN/SAC codes with applicable CGST/SGST/IGST rates.",
+    "category": "Reference",
+    "badge": "Coming Soon",
+    "icon": "🧮",
+    "url": "https://services.gst.gov.in/services/searchhsnsac",
+    "keywords": ["hsn", "sac", "rate", "code", "tax", "calculator"]
+  }
+]
