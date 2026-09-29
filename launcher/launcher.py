@@ -6,6 +6,7 @@ Press Ctrl + Shift + K anywhere to open your tools palette.
 import os
 import sys
 import json
+import winreg
 import ctypes
 import ctypes.wintypes
 import threading
@@ -402,10 +403,52 @@ def create_tray_image():
     return image
 
 
-def setup_tray(on_open, on_exit):
+# --- WINDOWS AUTOSTART (REGISTRY) ---
+AUTOSTART_REG_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
+AUTOSTART_APP_NAME = "QuickHub"
+
+
+def is_autostart_enabled():
+    """Check if QuickHub is registered in Windows startup."""
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, AUTOSTART_REG_KEY, 0, winreg.KEY_READ) as key:
+            value, _ = winreg.QueryValueEx(key, AUTOSTART_APP_NAME)
+            return bool(value)
+    except (FileNotFoundError, OSError):
+        return False
+
+
+def set_autostart(enable: bool):
+    """Enable or disable QuickHub in Windows startup."""
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, AUTOSTART_REG_KEY, 0, winreg.KEY_SET_VALUE) as key:
+            if enable:
+                if getattr(sys, "frozen", False):
+                    cmd = f'"{sys.executable}"'
+                else:
+                    cmd = f'"{sys.executable}" "{os.path.abspath(__file__)}"'
+                winreg.SetValueEx(key, AUTOSTART_APP_NAME, 0, winreg.REG_SZ, cmd)
+            else:
+                try:
+                    winreg.DeleteValue(key, AUTOSTART_APP_NAME)
+                except FileNotFoundError:
+                    pass
+        return True
+    except Exception as e:
+        print(f"Error updating startup registry: {e}")
+        return False
+
+
+def setup_tray(on_open, on_toggle_autostart, on_exit):
     tray_image = create_tray_image()
+
+    def get_autostart_state(item):
+        return is_autostart_enabled()
+
     menu = pystray.Menu(
         pystray.MenuItem("Open QuickHub (Ctrl+Shift+K)", on_open, default=True),
+        pystray.MenuItem("Start with Windows", on_toggle_autostart, checked=get_autostart_state),
+        pystray.Menu.SEPARATOR,
         pystray.MenuItem("Exit", on_exit)
     )
     tray = pystray.Icon("QuickHub", tray_image, "QuickHub Tools Launcher", menu)
@@ -414,6 +457,10 @@ def setup_tray(on_open, on_exit):
 
 # --- MAIN APPLICATION ENTRY ---
 def main():
+    # If running as standalone .exe, auto-register in Windows Startup on first run
+    if getattr(sys, "frozen", False) and not is_autostart_enabled():
+        set_autostart(True)
+
     root = tk.Tk()
     app = QuickHubUI(root)
 
@@ -425,7 +472,7 @@ def main():
     hotkey_thread = HotkeyWorker(trigger_show)
     hotkey_thread.start()
 
-    # System Tray
+    # System Tray Callbacks
     def on_tray_exit(icon, item):
         icon.stop()
         root.after(0, root.destroy)
@@ -434,14 +481,20 @@ def main():
     def on_tray_open(icon, item):
         trigger_show()
 
-    tray_icon = setup_tray(on_tray_open, on_tray_exit)
+    def on_tray_toggle_autostart(icon, item):
+        new_state = not is_autostart_enabled()
+        set_autostart(new_state)
+        # Update menu checkmark
+        icon.update_menu()
+
+    tray_icon = setup_tray(on_tray_open, on_tray_toggle_autostart, on_tray_exit)
     tray_thread = threading.Thread(target=tray_icon.run, daemon=True)
     tray_thread.start()
 
     print("=" * 60)
     print(" QuickHub is running in the background!")
     print(" Press Ctrl + Shift + K anywhere to open the tools palette.")
-    print(" Right-click the system tray icon to exit.")
+    print(" Right-click the system tray icon to toggle 'Start with Windows' or exit.")
     print("=" * 60)
 
     # Run Tkinter mainloop
@@ -450,3 +503,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
