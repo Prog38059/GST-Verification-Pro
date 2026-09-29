@@ -3,7 +3,7 @@ import time
 import uuid
 import base64
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 from asgiref.wsgi import WsgiToAsgi
 
 app = Flask(__name__)
@@ -36,6 +36,16 @@ def index():
 def health():
     """Health check endpoint for cloud hosting providers like Render."""
     return jsonify({"status": "healthy", "service": "GST-Verification-API"}), 200
+
+
+@app.route("/download/quickhub", methods=["GET"])
+def download_quickhub():
+    """Direct 1-click download for the QuickHub Windows desktop launcher (.exe)."""
+    exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "launcher", "dist", "QuickHub.exe")
+    if os.path.exists(exe_path):
+        return send_file(exe_path, as_attachment=True, download_name="QuickHub.exe")
+    return jsonify({"error": "QuickHub.exe executable not found on server"}), 404
+
 
 
 @app.route("/api/v1/getCaptcha", methods=["GET"])
