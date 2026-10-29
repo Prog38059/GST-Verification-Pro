@@ -62,6 +62,7 @@ const detectedPan = document.getElementById("detectedPan");
 const resultsSection = document.getElementById("resultsSection");
 
 // Buttons & Actions
+const shareLinkBtn = document.getElementById("shareLinkBtn");
 const copySummaryBtn = document.getElementById("copySummaryBtn");
 const printBtn = document.getElementById("printBtn");
 const copyJsonBtn = document.getElementById("copyJsonBtn");
@@ -78,13 +79,15 @@ const toast = document.getElementById("toast");
 document.addEventListener("DOMContentLoaded", () => {
   loadCaptcha();
   renderHistory();
-  gstinInput.focus();
 
   // Attach Listeners
   gstinInput.addEventListener("input", handleGstinInput);
   refreshCaptchaBtn.addEventListener("click", loadCaptcha);
   document.getElementById("gstForm").addEventListener("submit", handleVerifySubmit);
 
+  if (shareLinkBtn) {
+    shareLinkBtn.addEventListener("click", copyShareLinkToClipboard);
+  }
   copySummaryBtn.addEventListener("click", copySummaryToClipboard);
   printBtn.addEventListener("click", () => window.print());
   copyJsonBtn.addEventListener("click", copyJsonToClipboard);
@@ -93,7 +96,40 @@ document.addEventListener("DOMContentLoaded", () => {
   closeHistoryBtn.addEventListener("click", closeHistoryDrawer);
   drawerOverlay.addEventListener("click", closeHistoryDrawer);
   clearHistoryBtn.addEventListener("click", clearSearchHistory);
+
+  // Check URL parameters (?gstin=...) or path (/verify/...) to pre-fill GSTIN
+  checkUrlForGstin();
 });
+
+// Check if GSTIN is passed via URL query parameter or path
+function checkUrlForGstin() {
+  // 1. Check query parameter: ?gstin=... or ?gst=...
+  const urlParams = new URLSearchParams(window.location.search);
+  let gstin = urlParams.get("gstin") || urlParams.get("gst");
+
+  // 2. Check path: /verify/<gstin>
+  if (!gstin && window.location.pathname.startsWith("/verify/")) {
+    const parts = window.location.pathname.split("/verify/");
+    if (parts.length > 1 && parts[1]) {
+      gstin = decodeURIComponent(parts[1]).replace(/\/$/, "");
+    }
+  }
+
+  if (gstin) {
+    gstin = gstin.trim().toUpperCase();
+    gstinInput.value = gstin;
+    // Trigger format & state detection banner
+    handleGstinInput({ target: gstinInput });
+
+    // Focus on captcha input so user only has to type captcha code
+    setTimeout(() => {
+      captchaInput.focus();
+    }, 200);
+  } else {
+    gstinInput.focus();
+  }
+}
+
 
 // Load live captcha from backend
 async function loadCaptcha() {
@@ -310,6 +346,18 @@ function renderResults(data) {
   } else {
     natureTags.innerHTML = '<span class="text-muted">Not specified</span>';
   }
+}
+
+// Copy Direct Share Link for Current GSTIN
+function copyShareLinkToClipboard() {
+  const gstin = (currentResultData?.gstin || gstinInput.value || "").trim();
+  if (!gstin) return;
+  const shareUrl = `${window.location.origin}/?gstin=${encodeURIComponent(gstin)}`;
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    showToast("Direct link copied! Anyone can open it to verify.");
+  }).catch(() => {
+    showToast("Failed to copy link");
+  });
 }
 
 // Copy Structured Summary

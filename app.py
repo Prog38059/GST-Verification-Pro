@@ -27,7 +27,8 @@ def cleanup_stale_sessions():
 
 
 @app.route("/", methods=["GET"])
-def index():
+@app.route("/verify/<path:gstin>", methods=["GET"])
+def index(gstin=None):
     """Serve the modern GST verification dashboard."""
     return render_template("index.html")
 
